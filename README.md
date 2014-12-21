@@ -26,3 +26,9 @@ Go to the code repo directory to start notebook server
 ```
 ipython notebook
 ```
+## Run iPython Notebook Page
+Go to your browser and enter this address:
+```
+http://localhost:8888/notebooks/DIVER%20Adapter.ipynb
+```
+You'll see the instructions on how to run the main features. 
