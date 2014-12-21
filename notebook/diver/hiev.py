@@ -8,19 +8,22 @@ from urlparse import urljoin
 import requests
 import json
 from logger import log
+import config
+import sys
 
-HOST = "http://localhost:3000"
 SEARCH_URL_FRAGMENT = "data_files/api_search"
 DOWNLOAD_FILE_URL_FRAGMENT = "data_files/%s/download"
-DOWNLOAD_DEST = "/Users/veronica/Downloads/files"
-TOKEN_FILE = "token.txt"
+UPLOAD_FILE_URL_FRAGMENT = "data_files/api_create?"
 
 def set_token(token):
-    tokfile = open(TOKEN_FILE, "w+")
-    tokfile.write(token)
-    tokfile.flush()
-    tokfile.close()
+    config.add("token",token)
+
+def set_host(diver_host):
+    config.add("host_url",diver_host)
     
+def set_downloaded_files_dir(dest):
+    config.add("downloaded_files_dir", dest)    
+
 def search(filename=None,
               file_formats=None,
               from_date=None,
@@ -44,8 +47,14 @@ def search(filename=None,
               ):
     param_dict = locals()
     payload = payload_builder(param_dict);
+    log(payload)
     # print payload
-    url = urljoin(HOST, SEARCH_URL_FRAGMENT)
+    diver_host = config.get("host_url")
+    if not diver_host:
+        print "Please set DIVER host url by set_host('..') or edit config.ini file."
+        sys.exit()
+    url = urljoin(diver_host, SEARCH_URL_FRAGMENT)
+    print "Querying %s..." % url
     respd = requests.post(url, params = payload)
     results = json.loads(respd.text)
     
@@ -59,26 +68,39 @@ def search(filename=None,
     return results
 
 def payload_builder(param_dict={}):
-    try:
-        tokfile = open(TOKEN_FILE, "r")
-        token = tokfile.readline()
-        tokfile.close()    
-        param_dict['auth_token'] = token
-    except IOError:
-        print "Please set token first!"
-        return None
+    token = config.get("token")
+    if not token:
+        print "Please set token by calling set_token('..') or edit config.ini file."
+        sys.exit()
+    param_dict['auth_token'] = token
     return param_dict
     
     
-def download(files):
-    url = urljoin(HOST, DOWNLOAD_FILE_URL_FRAGMENT)
-    for f in files:
+def download(files_metadata, dest=None):
+    if not dest:
+        dest = config.get("downloaded_files_dir")
+    diver_host = config.get("host_url")
+    url = urljoin(diver_host, DOWNLOAD_FILE_URL_FRAGMENT)
+    for f in files_metadata:
         filename = f['filename']
         fid = f['file_id']
         download_url = url % fid
+        # BUGGY, fix this with []
         d_resp = requests.get(download_url, params=payload_builder(), stream=True)
-        save_file_downloaded(filename, d_resp, DOWNLOAD_DEST)
-    return
+        save_file_downloaded(filename, d_resp, dest)
+
+def upload(filepath, experiment_id, type):
+    diver_host = config.get("host_url")
+    url = urljoin(diver_host, UPLOAD_FILE_URL_FRAGMENT)
+    print 'Uploading file %s to %s..' % (filepath, url)
+    file =  open(filepath, 'rb')
+    files = {'file': ('%s.txt' % experiment_id, file, type, {'Expires': '0'})}
+    payload = payload_builder({'experiment_id':experiment_id, 'type':type})
+    log(payload)
+    u_resp = requests.post(url, params=payload, files=files)
+    log(u_resp)
+    print 'Upload complete!'
+    return u_resp
 
 def save_file_downloaded(filename, respond, dest):
     print "Downloading %s" % filename 
