@@ -10,6 +10,7 @@ brew install pyqt
 brew install -vd pyside  #this takes a long time, so better verbose it
 pip install Jinja2
 pip install tornado
+pip install requests
 ```
 
 ## Set paths and permissions..
