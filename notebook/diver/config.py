@@ -1,4 +1,8 @@
-CONFIG_INI = "config.ini"
+import sys, os
+
+CONFIG_DIR = os.path.dirname(__file__) + '/../'
+
+CONFIG_INI = "%s/config.ini" % CONFIG_DIR
 
 def load():
     config_dict = {}
