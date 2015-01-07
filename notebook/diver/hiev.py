@@ -73,8 +73,16 @@ def payload_builder(param_dict={}):
         print "Please set token by calling set_token('..') or edit config.ini file."
         sys.exit()
     param_dict['auth_token'] = token
+    check_params(param_dict)
     return param_dict
     
+def check_params(param_dict):         
+    for key, value in param_dict.iteritems() :
+        if isinstance(value, list):
+            param_dict[key + '[]'] = value
+            param_dict.pop(key)
+            
+    return param_dict    
     
 def download(files_metadata, dest=None):
     if not dest:
@@ -85,7 +93,6 @@ def download(files_metadata, dest=None):
         filename = f['filename']
         fid = f['file_id']
         download_url = url % fid
-        # BUGGY, fix this with []
         d_resp = requests.get(download_url, params=payload_builder(), stream=True)
         save_file_downloaded(filename, d_resp, dest)
 
@@ -93,14 +100,19 @@ def upload(filepath, experiment_id, type):
     diver_host = config.get("host_url")
     url = urljoin(diver_host, UPLOAD_FILE_URL_FRAGMENT)
     print 'Uploading file %s to %s..' % (filepath, url)
+    filename = get_filename(filepath)
     file =  open(filepath, 'rb')
-    files = {'file': ('%s.txt' % experiment_id, file, type, {'Expires': '0'})}
+    files = {'file': (filename, file, type, {'Expires': '0'})}
     payload = payload_builder({'experiment_id':experiment_id, 'type':type})
     log(payload)
     u_resp = requests.post(url, params=payload, files=files)
     log(u_resp)
     print 'Upload complete!'
     return u_resp
+
+def get_filename(filepath):
+    import ntpath
+    return ntpath.basename(filepath)
 
 def save_file_downloaded(filename, respond, dest):
     print "Downloading %s" % filename 
