@@ -1,22 +1,16 @@
-## How to Install iPython Notebook (on Mac)
+## How to Install iPython Notebook 
+
+First, make sure you have Python and pip installed. 
+On Mac, pip comes with your Python installation. On Ubuntu, you can get pip by running the following command:
 ```
-sudo su
-pip install ipython
-pip install pygment
-pip install numpy
-brew update
-brew install sip
-brew install pyqt
-brew install -vd pyside  #this takes a long time, so better verbose it
-pip install Jinja2
-pip install tornado
-pip install requests
+sudo apt-get install python-pip python-dev build-essential 
 ```
 
-## Set paths and permissions..
+Now run the following commands to install iPython Notebook and all dependencies:
 ```
-export PYTHONPATH=$PYTHONPATH:/<where your python lib is>/site-packages # (e.g. $PYTHONPATH:/usr/local/lib/python2.7/site-packages) 
-sudo chmod -R 755 /<where your python lib is>/site-packages
+sudo su
+pip install "ipython[notebook]"
+pip install requests
 ```
 
 ## Start iPython Notebook Server..
