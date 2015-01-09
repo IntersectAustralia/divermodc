@@ -81,7 +81,7 @@ def payload_builder(param_dict={}):
     
 def check_params(param_dict):         
     for key, value in param_dict.iteritems() :
-        if isinstance(value, list):
+        if isinstance(value, list) and not key[-2:] == '[]': 
             param_dict[key + '[]'] = value
             param_dict.pop(key)
     # remove 'quiet=False'
