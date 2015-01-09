@@ -46,7 +46,8 @@ def search(filename=None,
               quiet=False
               ):
     param_dict = locals()
-    payload = payload_builder(param_dict);
+    payload = payload_builder(param_dict);    
+    payload = check_params(payload)
     log(payload)
     # print payload
     diver_host = config.get("host_url")
@@ -76,7 +77,6 @@ def payload_builder(param_dict={}):
         print "Please set token by calling set_token('..') or edit config.ini file."
         sys.exit()
     param_dict['auth_token'] = token
-    check_params(param_dict)
     return param_dict
     
 def check_params(param_dict):         

@@ -37,7 +37,15 @@ You'll see the instructions on how to run the main features.
 
 ## Run unit tests
 
-Go into the 'notebook' directory, then run command to execute all unit tests
+First, install the following packages:
+
+```
+sudo su
+pip install sure
+pip install httpretty
+```
+
+Now go into the 'notebook' directory, then run command to execute all unit tests
 
 ```
 cd divermodc/notebook

@@ -4,9 +4,7 @@ class ConfigTestCase(unittest.TestCase):
     
     def setUp(self):
         self.initial_state_config = config.load()
-        import os.path
-        file_exists = os.path.exists(config.CONFIG_INI) 
-        assert file_exists
+        file_exists(config.CONFIG_INI) 
         self.assertEquals(len(config.load()), 2)
     
     def tearDown(self):
