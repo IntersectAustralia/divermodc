@@ -28,7 +28,7 @@ def search(filename=None,
               file_formats=None,
               from_date=None,
               to_date=None,
-              exclude=None,
+              #exclude=None,
               description=None,
               file_id=None,
               id=None,
@@ -54,17 +54,20 @@ def search(filename=None,
         print "Please set DIVER host url by set_host('..') or edit config.ini file."
         sys.exit()
     url = urljoin(diver_host, SEARCH_URL_FRAGMENT)
-    print "Querying %s..." % url
+    if (not quiet):
+        print "Posting Query to %s..." % url
     respd = requests.post(url, params = payload)
     results = json.loads(respd.text)
     
     # pretty print result to log file
+    log(results)
     log(json.dumps(results, sort_keys=True, indent=2, separators=(',',': ')))
-
-    print 'Search results: %s' % len(results)
-    print 'Files returned:'
-    for f in results:
-        print "Filename: %s  (ID: %s)" % (f['filename'], f['file_id'])
+    
+    if (not quiet):
+        print 'Search results: %s' % len(results)
+        print 'Files returned:'
+        for f in results:
+            print "Filename: %s  (ID: %s)" % (f['filename'], f['file_id'])
     return results
 
 def payload_builder(param_dict={}):
@@ -81,7 +84,8 @@ def check_params(param_dict):
         if isinstance(value, list):
             param_dict[key + '[]'] = value
             param_dict.pop(key)
-            
+    # remove 'quiet=False'
+    param_dict.pop('quiet')        
     return param_dict    
     
 def download(files_metadata, dest=None):
