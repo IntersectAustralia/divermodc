@@ -60,8 +60,7 @@ def search(filename=None,
     results = json.loads(respd.text)
     
     # pretty print result to log file
-    log(results)
-    log(json.dumps(results, sort_keys=True, indent=2, separators=(',',': ')))
+    log(pretty_print_json(results))
     
     if (not quiet):
         print 'Search results: %s' % len(results)
@@ -129,4 +128,7 @@ def save_file_downloaded(filename, respond, dest):
         f.close()
     print "Saved as %s" % filepath
     log("Downloaded %s as %s" % (filename, filepath))
+
+def pretty_print_json(str):
+    return json.dumps(str, sort_keys=True, indent=2, separators=(',',': '))
     
