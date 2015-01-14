@@ -1,6 +1,5 @@
 """
 API to the search functionality of DIVER
-
 Required library: pip install requests
 """
 
@@ -57,7 +56,7 @@ def search(filename=None,
     url = urljoin(diver_host, SEARCH_URL_FRAGMENT)
     if (not quiet):
         print "Posting Query to %s..." % url
-    respd = requests.post(url, params = payload)
+    respd = requests.post(url, params = payload, verify=False)
     results = json.loads(respd.text)
     
     # pretty print result to log file
@@ -97,7 +96,7 @@ def download(files_metadata, dest=None):
         filename = f['filename']
         fid = f['file_id']
         download_url = url % fid
-        d_resp = requests.get(download_url, params=payload_builder(), stream=True)
+        d_resp = requests.get(download_url, params=payload_builder(), stream=True, verify=False)
         save_file_downloaded(filename, d_resp, dest)
 
 def upload(filepath, experiment_id, type):
@@ -109,7 +108,7 @@ def upload(filepath, experiment_id, type):
     files = {'file': (filename, file, type, {'Expires': '0'})}
     payload = payload_builder({'experiment_id':experiment_id, 'type':type})
     log(payload)
-    u_resp = requests.post(url, params=payload, files=files)
+    u_resp = requests.post(url, params=payload, files=files, verify=False)
     log(u_resp)
     print 'Upload complete!'
     return u_resp
@@ -130,5 +129,4 @@ def save_file_downloaded(filename, respond, dest):
         f.close()
     print "Saved as %s" % filepath
     log("Downloaded %s as %s" % (filename, filepath))
-
-        
+    
