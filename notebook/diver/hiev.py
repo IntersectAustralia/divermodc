@@ -157,7 +157,10 @@ def upload(filepath, experiment_id, type):
         log(payload)
         u_resp = requests.post(url, params=payload, files=files, verify=False)
         log(u_resp)
-        print 'Upload complete!'
+        if not u_resp:
+            print '[Error] Upload arguments invalid or incomplete.'
+        else:
+            print 'Upload Complete!'
         return u_resp
     except requests.ConnectionError:
         print '[Error] Cannot connect the url %s. Please check your url, run "set_host(url)" and try again.' % diver_host
