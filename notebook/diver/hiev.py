@@ -17,6 +17,14 @@ warnings.filterwarnings('ignore')
 SEARCH_URL_FRAGMENT = "data_files/api_search"
 DOWNLOAD_FILE_URL_FRAGMENT = "data_files/%s/download"
 UPLOAD_FILE_URL_FRAGMENT = "data_files/api_create?"
+VARLIST_URL_FRAGMENT = "data_files/variable_list"
+
+VAR_NAME = "name"
+VAR_UNIT = "unit"
+VAR_DATA_TYPE = "data_type"
+VAR_FILL_VALUE = "fill_value"
+VAR_COLUMN_MAPPING = "mapping"
+VARLIST = [VAR_NAME, VAR_UNIT, VAR_DATA_TYPE, VAR_FILL_VALUE, VAR_COLUMN_MAPPING]
 
 class InvalidTokenError(Exception): {}
 class EmptyTokenError(Exception): {}
@@ -162,6 +170,66 @@ def upload(filepath, experiment_id, type):
         else:
             print 'Upload Complete!'
         return u_resp
+    except requests.ConnectionError:
+        print '[Error] Cannot connect the url %s. Please check your url, run "set_host(url)" and try again.' % diver_host
+    except KeyError:
+        print '[Error] Invalid Key: %s. Please check your token, run "set_token(token)" and try again' % diver_token
+    except EmptyHostError:
+        print "[Error] Please set DIVER host url by set_host('..') or edit config.ini file."
+    except EmptyTokenError:
+        print "[Error] Please set DIVER token by set_token('..') or edit config.ini file."  
+    except Exception as e:
+        print e
+
+def get_variables(var_list_json, key, quiet=False):
+    if key not in VARLIST:
+        print 'No such variable: %s' %key
+        print 'Try one of these:' 
+        print VARLIST
+    var_set = set()
+    for var in var_list_json:
+        var_set.add(var[key])
+    # print if not quiet
+    if not quiet:
+        print 'Variables:'
+        for var in var_set:
+            print var    
+    return var_set
+
+def list_variables(quiet=False):
+    try:
+        diver_host = config.get("host_url")
+        diver_token = config.get("token")
+        if not diver_host:
+            raise EmptyHostError
+        if not diver_token:
+            raise EmptyTokenError    
+        url = urljoin(diver_host, VARLIST_URL_FRAGMENT)
+        print 'Retrieving all variables from %s..' % (url)
+        payload = payload_builder()
+        u_resp = requests.post(url, params=payload)
+        results = json.loads(u_resp.text)
+        if isinstance(results, dict) and results.has_key("error"):
+            raise KeyError
+
+        # pretty print result to log file
+        log(pretty_print_json(results))
+        
+        if (not quiet):
+            print 'Search results: %s' % len(results)
+            print 'Variables returned:'
+            for var in results:
+                print "Name: %s" % var[VAR_NAME]
+                if var.has_key(VAR_UNIT):
+                    print "Unit: %s" % var[VAR_UNIT] 
+                if var.has_key(VAR_DATA_TYPE):
+                    print "Data Type: %s" % var[VAR_DATA_TYPE]     
+                if var.has_key(VAR_FILL_VALUE):
+                    print "Fill Value: %s" % var[VAR_FILL_VALUE] 
+                if var.has_key(VAR_COLUMN_MAPPING):
+                    print "Column Mapping: %s" % var[VAR_COLUMN_MAPPING] 
+                print ""
+        return results
     except requests.ConnectionError:
         print '[Error] Cannot connect the url %s. Please check your url, run "set_host(url)" and try again.' % diver_host
     except KeyError:
