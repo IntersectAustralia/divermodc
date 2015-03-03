@@ -188,10 +188,11 @@ def get_variables(var_list_json, key, quiet=False):
         print VARLIST
     var_set = set()
     for var in var_list_json:
-        var_set.add(var[key])
+        if var.has_key(key) and var[key]:
+          var_set.add(var[key])
     # print if not quiet
     if not quiet:
-        print 'Variables:'
+        print '\nAll "%s" variables:\n' %key
         for var in var_set:
             print var    
     return var_set
