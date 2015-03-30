@@ -3,7 +3,7 @@ API to the search functionality of DIVER
 Required library: pip install requests
 """
 
-from urlparse import urljoin
+from urllib.parse import urljoin
 import requests
 import json
 from logger import log
@@ -74,7 +74,7 @@ def search(filename=None,
             raise EmptyTokenError
         url = urljoin(diver_host, SEARCH_URL_FRAGMENT)
         if (not quiet):
-            print "Posting Query to %s..." % url
+            print ("Posting Query to " + url)
         respd = requests.post(url, params = payload, verify=False)
         results = json.loads(respd.text)
         if isinstance(results, dict) and results.has_key("error"):
@@ -84,22 +84,22 @@ def search(filename=None,
         log(pretty_print_json(results))
         
         if (not quiet):
-            print 'Search results: %s' % len(results)
-            print 'Files returned:'
+            print ('Search results: ' + str(len(results)))
+            print ('Files returned:')
             for f in results:
-                print "Filename: %s  (ID: %s)" % (f['filename'], f['file_id'])
+                print ("Filename: " + f['filename'] + "ID: " + str(f['file_id']))
         return results
     
     except requests.ConnectionError:
-        print '[Error] Cannot connect the url %s. Please check your url, run "set_host(url)" and try again.' % diver_host
+        print ('[Error] Cannot connect the url ' + diver_host + '. Please check your url, run "set_host(url)" and try again.')
     except KeyError:
-        print '[Error] Invalid Key: %s. Please check your token, run "set_token(token)" and try again' % diver_token
+        print ('[Error] Invalid Key: ' + diver_token + ' Please check your token, run "set_token(token)" and try again.')
     except EmptyHostError:
-        print "[Error] Please set DIVER host url by set_host('..') or edit config.ini file."
+        print ("[Error] Please set DIVER host url by set_host('..') or edit config.ini file.")
     except EmptyTokenError:
-        print "[Error] Please set DIVER token by set_token('..') or edit config.ini file."
+        print ("[Error] Please set DIVER token by set_token('..') or edit config.ini file.")
     except Exception as e:
-        print e
+        print (e)
         
 def is_url_valid(url):
     import urlparse
@@ -112,7 +112,7 @@ def payload_builder(param_dict={}):
     return param_dict
     
 def check_params(param_dict):         
-    for key, value in param_dict.iteritems() :
+    for key, value in param_dict.items() :
         if isinstance(value, list) and not key[-2:] == '[]': 
             param_dict[key + '[]'] = value
             param_dict.pop(key)
@@ -138,15 +138,15 @@ def download(files_metadata, dest=None):
             d_resp = requests.get(download_url, params=payload_builder(), stream=True, verify=False)
             save_file_downloaded(filename, d_resp, dest)
     except requests.ConnectionError:
-        print '[Error] Cannot connect the url %s. Please check your url, run "set_host(url)" and try again.' % diver_host
+        print ('[Error] Cannot connect the url ' + diver_host + '. Please check your url, run "set_host(url)" and try again.')
     except KeyError:
-        print '[Error] Invalid Key: %s. Please check your token, run "set_token(token)" and try again' % diver_token
+        print ('[Error] Invalid Key: ' + diver_token + '. Please check your token, run "set_token(token)" and try again.')
     except EmptyHostError:
-        print "[Error] Please set DIVER host url by set_host('..') or edit config.ini file."
+        print ("[Error] Please set DIVER host url by set_host('..') or edit config.ini file.")
     except EmptyTokenError:
-        print "[Error] Please set DIVER token by set_token('..') or edit config.ini file."  
+        print ("[Error] Please set DIVER token by set_token('..') or edit config.ini file.") 
     except Exception as e:
-        print e
+        print (e)
 
 def upload(filepath, experiment_id, type):
     try:
@@ -157,7 +157,7 @@ def upload(filepath, experiment_id, type):
         if not diver_token:
             raise EmptyTokenError    
         url = urljoin(diver_host, UPLOAD_FILE_URL_FRAGMENT)
-        print 'Uploading file %s to %s..' % (filepath, url)
+        print ('Uploading file ' + fileplath + 'to ' + url)
         filename = get_filename(filepath)
         file =  open(filepath, 'rb')
         files = {'file': (filename, file, type, {'Expires': '0'})}
@@ -166,35 +166,35 @@ def upload(filepath, experiment_id, type):
         u_resp = requests.post(url, params=payload, files=files, verify=False)
         log(u_resp)
         if not u_resp:
-            print '[Error] Upload arguments invalid or incomplete.'
+            print ('[Error] Upload arguments invalid or incomplete.')
         else:
-            print 'Upload Complete!'
+            print ('Upload Complete!')
         return u_resp
     except requests.ConnectionError:
-        print '[Error] Cannot connect the url %s. Please check your url, run "set_host(url)" and try again.' % diver_host
+        print ('[Error] Cannot connect the url ' + diver_host + '. Please check your url, run "set_host(url)" and try again.')
     except KeyError:
-        print '[Error] Invalid Key: %s. Please check your token, run "set_token(token)" and try again' % diver_token
+        print ('[Error] Invalid Key: ' + diver_token + '. Please check your token, run "set_token(token)" and try again.')
     except EmptyHostError:
-        print "[Error] Please set DIVER host url by set_host('..') or edit config.ini file."
+        print ("[Error] Please set DIVER host url by set_host('..') or edit config.ini file.")
     except EmptyTokenError:
-        print "[Error] Please set DIVER token by set_token('..') or edit config.ini file."  
+        print ("[Error] Please set DIVER token by set_token('..') or edit config.ini file.") 
     except Exception as e:
-        print e
+        print (e)
 
 def get_variables(var_list_json, key, quiet=False):
     if key not in VARLIST:
-        print 'No such variable: %s' %key
-        print 'Try one of these:' 
-        print VARLIST
+        print ('No such variable: ' + key)
+        print ('Try one of these:') 
+        print (VARLIST)
     var_set = set()
     for var in var_list_json:
         if var.has_key(key) and var[key]:
           var_set.add(var[key])
     # print if not quiet
     if not quiet:
-        print '\nAll "%s" variables:\n' %key
+        print ('\nAll "' + key + '" variables:\n')
         for var in var_set:
-            print var    
+            print (var)
     return var_set
 
 def list_variables(quiet=False):
@@ -206,7 +206,7 @@ def list_variables(quiet=False):
         if not diver_token:
             raise EmptyTokenError    
         url = urljoin(diver_host, VARLIST_URL_FRAGMENT)
-        print 'Retrieving all variables from %s..' % (url)
+        print ('Retrieving all variables from ' + url)
         payload = payload_builder()
         u_resp = requests.post(url, params=payload)
         results = json.loads(u_resp.text)
@@ -217,37 +217,37 @@ def list_variables(quiet=False):
         log(pretty_print_json(results))
         
         if (not quiet):
-            print 'Search results: %s' % len(results)
-            print 'Variables returned:'
+            print ('Search results: ' + len(results))
+            print ('Variables returned:')
             for var in results:
-                print "Name: %s" % var[VAR_NAME]
+                print ("Name: " + var[VAR_NAME])
                 if var.has_key(VAR_UNIT):
-                    print "Unit: %s" % var[VAR_UNIT] 
+                    print ("Unit: %s" % var[VAR_UNIT])
                 if var.has_key(VAR_DATA_TYPE):
-                    print "Data Type: %s" % var[VAR_DATA_TYPE]     
+                    print ("Data Type: " + var[VAR_DATA_TYPE])
                 if var.has_key(VAR_FILL_VALUE):
-                    print "Fill Value: %s" % var[VAR_FILL_VALUE] 
+                    print ("Fill Value: " + var[VAR_FILL_VALUE])
                 if var.has_key(VAR_COLUMN_MAPPING):
-                    print "Column Mapping: %s" % var[VAR_COLUMN_MAPPING] 
-                print ""
+                    print ("Column Mapping: " + var[VAR_COLUMN_MAPPING])
+                print ("")
         return results
     except requests.ConnectionError:
-        print '[Error] Cannot connect the url %s. Please check your url, run "set_host(url)" and try again.' % diver_host
+        print ('[Error] Cannot connect the url ' + diver_host + '. Please check your url, run "set_host(url)" and try again.')
     except KeyError:
-        print '[Error] Invalid Key: %s. Please check your token, run "set_token(token)" and try again' % diver_token
+        print ('[Error] Invalid Key: ' + diver_token + '. Please check your token, run "set_token(token)" and try again')
     except EmptyHostError:
-        print "[Error] Please set DIVER host url by set_host('..') or edit config.ini file."
+        print ("[Error] Please set DIVER host url by set_host('..') or edit config.ini file.")
     except EmptyTokenError:
-        print "[Error] Please set DIVER token by set_token('..') or edit config.ini file."  
+        print ("[Error] Please set DIVER token by set_token('..') or edit config.ini file.")
     except Exception as e:
-        print e
+        print (e)
         
 def get_filename(filepath):
     import ntpath
     return ntpath.basename(filepath)
 
 def save_file_downloaded(filename, respond, dest):
-    print "Downloading %s" % filename 
+    print ("Downloading " + filename)
     import os.path
     filepath = os.path.join(dest, filename)
     with open(filepath, "wb") as f:
@@ -256,7 +256,7 @@ def save_file_downloaded(filename, respond, dest):
                 f.write(chunk)
                 f.flush()
         f.close()
-    print "Saved as %s" % filepath
+    print ("Saved as " + filepath)
     log("Downloaded %s as %s" % (filename, filepath))
 
 def pretty_print_json(str):
