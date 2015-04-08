@@ -157,7 +157,7 @@ def upload(filepath, experiment_id, type):
         if not diver_token:
             raise EmptyTokenError    
         url = urljoin(diver_host, UPLOAD_FILE_URL_FRAGMENT)
-        print ('Uploading file ' + filepath + 'to ' + url)
+        print ('Uploading file ' + filepath + ' to ' + url)
         filename = get_filename(filepath)
         file =  open(filepath, 'rb')
         files = {'file': (filename, file, type, {'Expires': '0'})}
@@ -166,7 +166,7 @@ def upload(filepath, experiment_id, type):
         u_resp = requests.post(url, params=payload, files=files, verify=False)
         log(u_resp)
         if not u_resp:
-            print ('[Error] Upload arguments invalid or incomplete.')
+            print ('[Error] Upload arguments invalid or file already exists.')
         else:
             print ('Upload Complete!')
         return u_resp
