@@ -6,8 +6,8 @@ Required library: pip install requests
 from urllib.parse import urljoin
 import requests
 import json
-from logger import log
-import config
+from diver.logger import log
+import diver.config as config
 import sys
 
 # Ignore SSL warnings for now
@@ -157,7 +157,7 @@ def upload(filepath, experiment_id, type):
         if not diver_token:
             raise EmptyTokenError    
         url = urljoin(diver_host, UPLOAD_FILE_URL_FRAGMENT)
-        print ('Uploading file ' + fileplath + 'to ' + url)
+        print ('Uploading file ' + filepath + 'to ' + url)
         filename = get_filename(filepath)
         file =  open(filepath, 'rb')
         files = {'file': (filename, file, type, {'Expires': '0'})}
@@ -186,9 +186,10 @@ def get_variables(var_list_json, key, quiet=False):
         print ('No such variable: ' + key)
         print ('Try one of these:') 
         print (VARLIST)
+        return
     var_set = set()
     for var in var_list_json:
-        if var.has_key(key) and var[key]:
+        if key in var and var[key]:
           var_set.add(var[key])
     # print if not quiet
     if not quiet:
@@ -208,27 +209,27 @@ def list_variables(quiet=False):
         url = urljoin(diver_host, VARLIST_URL_FRAGMENT)
         print ('Retrieving all variables from ' + url)
         payload = payload_builder()
+        
         u_resp = requests.post(url, params=payload)
         results = json.loads(u_resp.text)
         if isinstance(results, dict) and results.has_key("error"):
             raise KeyError
-
         # pretty print result to log file
         log(pretty_print_json(results))
         
         if (not quiet):
-            print ('Search results: ' + len(results))
+            print ('Search results: ' + str(len(results)))
             print ('Variables returned:')
             for var in results:
-                print ("Name: " + var[VAR_NAME])
-                if var.has_key(VAR_UNIT):
+                print ("Name: %s" % var[VAR_NAME])
+                if VAR_UNIT in var:
                     print ("Unit: %s" % var[VAR_UNIT])
-                if var.has_key(VAR_DATA_TYPE):
-                    print ("Data Type: " + var[VAR_DATA_TYPE])
-                if var.has_key(VAR_FILL_VALUE):
-                    print ("Fill Value: " + var[VAR_FILL_VALUE])
-                if var.has_key(VAR_COLUMN_MAPPING):
-                    print ("Column Mapping: " + var[VAR_COLUMN_MAPPING])
+                if VAR_DATA_TYPE in var:
+                    print ("Data Type: %s" % var[VAR_DATA_TYPE])
+                if VAR_FILL_VALUE in var:
+                    print ("Fill Value: %s" % var[VAR_FILL_VALUE])
+                if VAR_COLUMN_MAPPING in var:
+                    print ("Column Mapping: %s" % var[VAR_COLUMN_MAPPING])
                 print ("")
         return results
     except requests.ConnectionError:
