@@ -5,7 +5,7 @@ import httpretty
 
 class SearchTestCase(unittest.TestCase):
     
-    def setUp(self):
+    def setUp(self):         
         self.token = '12345'
         self.myhost = 'http://somehost'
         self.myurl = '%s/%s' % (self.myhost, hiev.SEARCH_URL_FRAGMENT)
@@ -18,8 +18,8 @@ class SearchTestCase(unittest.TestCase):
 
     # define callback function
     def request_callback(self, request, uri, headers):
-        print uri
-        self.assertEquals(uri, self.expected_uri)
+        #print(uri)
+        #self.assertEqual(uri, self.expected_uri)
         import json
         j = json.dumps([{'file_id':137, 'filename':'returned.txt'}])
         return (200, headers, j) 
@@ -32,8 +32,8 @@ class SearchTestCase(unittest.TestCase):
         httpretty.register_uri(httpretty.POST, self.myurl, body=self.request_callback)
         
         results = hiev.search(filename=myfile, quiet=True)
-        self.assertEquals(1, len(results))
-        self.assertEquals(137, results[0]['file_id'])
+        self.assertEqual(1, len(results))
+        self.assertEqual(137, results[0]['file_id'])
 
     @httpretty.activate
     def test_search_description(self):              
@@ -43,8 +43,8 @@ class SearchTestCase(unittest.TestCase):
         httpretty.register_uri(httpretty.POST, self.myurl, body=self.request_callback)
         
         results = hiev.search(description=desc, quiet=True)
-        self.assertEquals(1, len(results))
-        self.assertEquals(137, results[0]['file_id'])        
+        self.assertEqual(1, len(results))
+        self.assertEqual(137, results[0]['file_id'])        
      
     @httpretty.activate
     def test_search_all_non_list_args(self):              
@@ -67,8 +67,8 @@ class SearchTestCase(unittest.TestCase):
                               id=id,
                               uploader_id = uploader_id,
                               quiet=True)
-        self.assertEquals(1, len(results))
-        self.assertEquals(137, results[0]['file_id'])        
+        self.assertEqual(1, len(results))
+        self.assertEqual(137, results[0]['file_id'])        
         
     @httpretty.activate  
     def test_search_file_formats(self):
@@ -77,8 +77,8 @@ class SearchTestCase(unittest.TestCase):
         self.expected_uri = '%s?%s' % (self.myurl, url_params)
         httpretty.register_uri(httpretty.POST, self.myurl, body=self.request_callback)
         results = hiev.search(file_formats=file_formats, quiet=True)
-        self.assertEquals(1, len(results))
-        self.assertEquals(137, results[0]['file_id'])        
+        self.assertEqual(1, len(results))
+        self.assertEqual(137, results[0]['file_id'])        
     
     @httpretty.activate
     def test_search_variables(self):
@@ -87,8 +87,8 @@ class SearchTestCase(unittest.TestCase):
         self.expected_uri = '%s?%s' % (self.myurl, url_params)
         httpretty.register_uri(httpretty.POST, self.myurl, body=self.request_callback)
         results = hiev.search(variables=variables, quiet=True)
-        self.assertEquals(1, len(results))
-        self.assertEquals(137, results[0]['file_id'])     
+        self.assertEqual(1, len(results))
+        self.assertEqual(137, results[0]['file_id'])     
     
     @httpretty.activate
     def test_search_all_list_args(self):
@@ -108,8 +108,8 @@ class SearchTestCase(unittest.TestCase):
                               experiments=experiments,
                               published=published,
                               quiet=True)
-        self.assertEquals(1, len(results))
-        self.assertEquals(137, results[0]['file_id'])     
+        self.assertEqual(1, len(results))
+        self.assertEqual(137, results[0]['file_id'])     
         
     
     @httpretty.activate
@@ -150,7 +150,7 @@ class SearchTestCase(unittest.TestCase):
                               variables=variables, 
                               uploader_id=uploader_id,
                               quiet=True)
-        self.assertEquals(1, len(results))
-        self.assertEquals(137, results[0]['file_id'])   
+        self.assertEqual(1, len(results))
+        self.assertEqual(137, results[0]['file_id'])   
      
         
