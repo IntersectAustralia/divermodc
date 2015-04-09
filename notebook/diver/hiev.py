@@ -87,7 +87,7 @@ def search(filename=None,
             print ('Search results: ' + str(len(results)))
             print ('Files returned:')
             for f in results:
-                print ("Filename: " + f['filename'] + "ID: " + str(f['file_id']))
+                print ("Filename: " + f['filename'] + " ID: " + str(f['file_id']))
         return results
     
     except requests.ConnectionError:
@@ -166,8 +166,11 @@ def upload(filepath, experiment_id, type):
         u_resp = requests.post(url, params=payload, files=files, verify=False)
         log(u_resp)
         if not u_resp:
-            print ('[Error] Upload arguments invalid or file already exists.')
-        else:
+            if u_resp.text:
+                print(u_resp.text)
+            else:
+                print ('[Error] Upload arguments invalid or incomplete.')
+        else:          
             print ('Upload Complete!')
         return u_resp
     except requests.ConnectionError:
