@@ -1,17 +1,18 @@
 ## How to Install iPython Notebook 
 
-First, make sure you have Python and pip installed. 
-On Mac, pip comes with your Python installation. On Ubuntu, you can get pip by running the following command:
+1. Go to http://continuum.io/downloads
+2. Click on 'I want Python 3.4'
+3. Click on Graphical Installer to download
+4. Run the downloaded installer
+5. Run this command: 
 ```
-sudo apt-get install python-pip python-dev build-essential 
+conda update conda
+```
+6. Run this command: 
+```
+conda update ipython ipython-notebook ipython-qtconsole
 ```
 
-Now run the following commands to install iPython Notebook and all dependencies:
-```
-sudo su
-pip install "ipython[notebook]"
-pip install requests
-```
 
 ## Start iPython Notebook Server..
 
@@ -37,7 +38,7 @@ You'll see the instructions on how to run the main features.
 
 ## Run unit tests
 
-First, install the following packages:
+First, make sure you have 'pip' installed. Then, install the following packages:
 
 ```
 sudo su
