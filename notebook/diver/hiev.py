@@ -18,6 +18,7 @@ SEARCH_URL_FRAGMENT = "data_files/api_search"
 DOWNLOAD_FILE_URL_FRAGMENT = "data_files/%s/download"
 UPLOAD_FILE_URL_FRAGMENT = "data_files/api_create?"
 VARLIST_URL_FRAGMENT = "data_files/variable_list"
+LEVEL1_AND_LEVEL2_INFO_URL_FRAGMENT = "data_files/facility_and_experiment_list"
 
 VAR_NAME = "name"
 VAR_UNIT = "unit"
@@ -25,6 +26,12 @@ VAR_DATA_TYPE = "data_type"
 VAR_FILL_VALUE = "fill_value"
 VAR_COLUMN_MAPPING = "mapping"
 VARLIST = [VAR_NAME, VAR_UNIT, VAR_DATA_TYPE, VAR_FILL_VALUE, VAR_COLUMN_MAPPING]
+
+LEVEL1_NAME = "facility_name"
+LEVEL1_ID = "facility_id"
+LEVEL1_EXPS = "experiments"
+LEVEL2_ID = "id"
+LEVEL2_NAME = "name"
 
 class InvalidTokenError(Exception): {}
 class EmptyTokenError(Exception): {}
@@ -73,7 +80,7 @@ def search(filename=None,
         if not diver_token:
             raise EmptyTokenError
         url = urljoin(diver_host, SEARCH_URL_FRAGMENT)
-        if (not quiet):
+        if not quiet:
             print ("Posting Query to " + url)
         respd = requests.post(url, params = payload, verify=False)
         results = json.loads(respd.text)
@@ -83,7 +90,7 @@ def search(filename=None,
         # pretty print result to log file
         log(pretty_print_json(results))
         
-        if (not quiet):
+        if not quiet:
             print ('Search results: ' + str(len(results)))
             print ('Files returned:')
             for f in results:
@@ -148,6 +155,7 @@ def download(files_metadata, dest=None):
     except Exception as e:
         print (e)
 
+
 def upload(filepath, experiment_id, type):
     try:
         diver_host = config.get("host_url")
@@ -183,6 +191,7 @@ def upload(filepath, experiment_id, type):
         print ("[Error] Please set DIVER token by set_token('..') or edit config.ini file.") 
     except Exception as e:
         print (e)
+
 
 def get_variables(var_list_json, key, quiet=False):
     if key not in VARLIST:
@@ -245,7 +254,50 @@ def list_variables(quiet=False):
         print ("[Error] Please set DIVER token by set_token('..') or edit config.ini file.")
     except Exception as e:
         print (e)
-        
+
+
+def list_level1_and_level2_info(quiet=False):
+    try:
+        diver_host = config.get("host_url")
+        diver_token = config.get("token")
+        if not diver_host:
+            raise EmptyHostError
+        if not diver_token:
+            raise EmptyTokenError
+        url = urljoin(diver_host, LEVEL1_AND_LEVEL2_INFO_URL_FRAGMENT)
+        print ('Retrieving all variables from ' + url)
+        payload = payload_builder()
+
+        u_resp = requests.get(url, params=payload)
+        results = json.loads(u_resp.text)
+        if isinstance(results, dict) and ("error" in results):
+            raise KeyError
+        # pretty print result to log file
+        log(pretty_print_json(results))
+
+        if not quiet:
+            print ('Search results: ' + str(len(results)))
+            print ('Level1 and Level2 info returned:')
+            for level1 in results:
+                print ("Level 1 ID: %s" % level1[LEVEL1_ID])
+                print ("Level 1 Name: %s" % level1[LEVEL1_NAME])
+                level2s = level1[LEVEL1_EXPS]
+                for level2 in level2s:
+                    print ("\tLevel 2 ID: %s" % level2[LEVEL2_ID])
+                    print("\tLevel 2 Name: %s" % level2[LEVEL2_NAME])
+
+        return results
+    except requests.ConnectionError:
+        print ('[Error] Cannot connect the url ' + diver_host + '. Please check your url, run "set_host(url)" and try again.')
+    except KeyError:
+        print ('[Error] Invalid Key: ' + diver_token + '. Please check your token, run "set_token(token)" and try again')
+    except EmptyHostError:
+        print ("[Error] Please set DIVER host url by set_host('..') or edit config.ini file.")
+    except EmptyTokenError:
+        print ("[Error] Please set DIVER token by set_token('..') or edit config.ini file.")
+    except Exception as e:
+        print (e)
+
 def get_filename(filepath):
     import ntpath
     return ntpath.basename(filepath)

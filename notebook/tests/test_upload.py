@@ -18,7 +18,7 @@ class UploadTestCase(unittest.TestCase):
     # define callback function
     def request_callback(self, request, uri, headers):
         print(uri)
-        self.assertEquals(uri, self.expected_uri)  
+        self.assertEqual(uri, self.expected_uri)
         print(request.body)     
         return (200, headers, 'Success\n') 
         
