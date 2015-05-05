@@ -255,7 +255,16 @@ def list_variables(quiet=False):
     except Exception as e:
         print (e)
 
+def get_level2_name(level2_number):
+    response = list_level1_and_level2_info(quiet=True)
 
+    index = 0
+    for level1 in response:
+        for level2 in response[index]['experiments']:
+            if level2['id'] == level2_number:
+                return level2['name']
+        index = index + 1
+    
 def list_level1_and_level2_info(quiet=False):
     try:
         diver_host = config.get("host_url")
