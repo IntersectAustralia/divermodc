@@ -274,7 +274,8 @@ def list_level1_and_level2_info(quiet=False):
         if not diver_token:
             raise EmptyTokenError
         url = urljoin(diver_host, LEVEL1_AND_LEVEL2_INFO_URL_FRAGMENT)
-        print ('Retrieving all variables from ' + url)
+        if not quiet:
+            print ('Retrieving all variables from ' + url)
         payload = payload_builder()
 
         u_resp = requests.get(url, params=payload)
